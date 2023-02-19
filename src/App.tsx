@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import SearchResult from "./components/SearchResult";
 function App() {
   const [search, setSearch] = useState("");
-  const [result, setResult] = useState([]);
+  const [result, setResult] = useState<any>([]);
 
   const handleSearch = async (e: FormEvent) => {
     e.preventDefault();
@@ -11,7 +11,11 @@ function App() {
     const response = await fetch(`http://localhost:3333/products?q=${search}`);
     const json = await response.json();
 
-    setResult(json);
+    const totalPrice = json.reduce((total, product) => {
+      return total + product.price;
+    }, 0);
+
+    setResult({ totalPrice, data: json });
   };
 
   return (
@@ -25,7 +29,9 @@ function App() {
         />
         <button>enviar</button>
       </form>
-      <SearchResult results={result} />
+      {result?.data && (
+        <SearchResult results={result?.data} price={result.totalPrice} />
+      )}
     </div>
   );
 }
